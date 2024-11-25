@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acak Aja</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="text-center">
+    <h1>Acak Aja</h1>
+  </header>
+  <main>
+    <ul class="menu">
+      <li>
+        <a href="acak-kelompok/main/kelompok.html" data-action="acak-kelompok">Acak Kelompok</a>
+      </li>
+      <li>
+        <a href="acak-peran/main/peran.html" data-action="acak-peran">Acak Peran</a>
+      </li>
+      <li>
+        <a href="spin-wheel/wheel.html" data-action="spin-wheel">Spin Wheel</a>
+      </li>
+      <li>
+        <a href="acak-angka/main/angka.html" data-action="acak-angka">Acak Angka</a>
+      </li>
+      <!-- Add input field and button for wheel sections -->
+      <li>
+        <label for="wheel-sections">Number of Sections:</label>
+        <input type="number" id="wheel-sections" name="wheel-sections" min="1" max="100">
+        <button id="set-sections">Set Sections</button>
+      </li>
+    </ul>
+  </main>
+  <script>
+    document.getElementById('set-sections').addEventListener('click', function() {
+      const sections = document.getElementById('wheel-sections').value;
+      if (sections) {
+        localStorage.setItem('wheelSections', sections);
+        alert('Number of sections set to ' + sections);
+      }
+    });
+  </script>
+</body>
+</html>
