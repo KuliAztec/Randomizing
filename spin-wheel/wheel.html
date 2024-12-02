@@ -1,77 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spin the Wheel</title>
     <style>
-        /* Tambahkan gaya untuk roda dan tombol */
-        #wheelCanvas {
-            border: 2px solid #000;
-            border-radius: 50%;
+        body {
+            background-color: #ffffff;
         }
-        #spinButton {
-            margin-top: 20px;
+
+        .header {
+            padding: 40px;
+            color: #fff;
+            margin: 0 auto;
+            margin-bottom: 40px;
+        }
+
+        .header h1, p {
+            text-align: center;
+            color: black;
+        }
+
+        .wheel {
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .center-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 60px;
+            background-color: #fff;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer; /* Change cursor to pointer */
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            border-right: 30px solid white;
+            position: absolute;
+            top: 50%;
+            right: -220%;
+            transform: translateY(-50%);
+        }
+
+        textarea {
+            background-color: rgba(20, 20, 20, 0.2);
+            caret-color: #fff;
+            resize: none;
+            color: #fff;
+        }
+
+        .inputArea {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
         }
     </style>
 </head>
+
 <body>
-    <input type="number" id="segmentInput" placeholder="Enter number of segments" min="1" max="100">
-    <canvas id="wheelCanvas" width="500" height="500"></canvas>
-    <button id="spinButton">Spin</button>
-    <button id="back" href="../index.html">Back</button>
-    <a href="../index.html">Back</a>
+    <div class="header">
+        <h1>WINNER</h1>
+        <p id="winner">NONE</p>
+    </div>
+    <div class="wheel">
+        <canvas id="canvas" width="500" height="500"></canvas>
+        <div class="center-circle">
+            <div class="triangle"></div>
+        </div>
+    </div>
+    <div class="inputArea">
+        <textarea id="itemInput" rows="10" cols="30">
+
+</textarea>
+    </div>
+    <button id="spinButton">SPIN</button>
+    <a href="../index.html">Kembali</a>
     <script>
-        const canvas = document.getElementById('wheelCanvas');
-        const ctx = canvas.getContext('2d');
-        const spinButton = document.getElementById('spinButton');
-        const segmentInput = document.getElementById('segmentInput');
-        let angle = 0;
-        let isSpinning = false;
+        function randomColor() {
+            const r = Math.floor(Math.random() * 255);
+            const g = Math.floor(Math.random() * 255);
+            const b = Math.floor(Math.random() * 255);
+            return { r, g, b };
+        }
 
-        function drawWheel() {
-            const segments = parseInt(segmentInput.value) || 8;
-            const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500', '#800080'];
-            const arc = Math.PI / (segments / 2);
+        function toRad(deg) {
+            return deg * (Math.PI / 180.0);
+        }
 
-            for (let i = 0; i < segments; i++) {
+        function randomRange(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function easeOutSine(x) {
+            return Math.sin((x * Math.PI) / 2);
+        }
+
+        function getPercent(input, min, max) {
+            return (((input - min) * 100) / (max - min)) / 100;
+        }
+
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const width = canvas.width;
+        const height = canvas.height;
+
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = width / 2;
+
+        let items = document.getElementById("itemInput").value.split("\n").filter(item => item.trim() !== "");
+        let currentDeg = 0;
+        let step = 360 / items.length;
+        let colors = [];
+        let itemDegs = {};
+
+        function createWheel() {
+            step = 360 / items.length;
+            for (let i = 0; i < items.length; i++) {
+                colors.push(randomColor());
+            }
+            draw();
+        }
+        createWheel(); // Initial wheel creation
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height); // Clear the canvas
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, toRad(0), toRad(360));
+            ctx.fillStyle = `rgb(${33},${33},${33})`;
+            ctx.lineTo(centerX, centerY);
+            ctx.fill();
+
+            let startDeg = currentDeg;
+            itemDegs = {}; // Reset itemDegs for the new draw
+            for (let i = 0; i < items.length; i++, startDeg += step) {
+                let endDeg = startDeg + step;
+
+                let color = colors[i];
+                let colorStyle = `rgb(${color.r},${color.g},${color.b})`;
+
                 ctx.beginPath();
-                ctx.fillStyle = colors[i % colors.length];
-                ctx.moveTo(250, 250);
-                ctx.arc(250, 250, 250, i * arc, (i + 1) * arc);
-                ctx.lineTo(250, 250);
+                ctx.arc(centerX, centerY, radius - 2, toRad(startDeg), toRad(endDeg));
+                let colorStyle2 = `rgb(${color.r - 30},${color.g - 30},${color.b - 30})`;
+                ctx.fillStyle = colorStyle2;
+                ctx.lineTo(centerX, centerY);
                 ctx.fill();
+
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius - 30, toRad(startDeg), toRad(endDeg));
+                ctx.fillStyle = colorStyle;
+                ctx.lineTo(centerX, centerY);
+                ctx.fill();
+
+                // draw text
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(toRad((startDeg + endDeg) / 2));
+                ctx.textAlign = "center";
+                ctx.fillStyle = (color.r > 150 || color.g > 150 || color.b > 150) ? "#000" : "#fff";
+                ctx.font = 'bold 24px serif';
+                ctx.fillText(items[i], 130, 10);
+                ctx.restore();
+
+                itemDegs[items[i]] = {
+                    "startDeg": startDeg,
+                    "endDeg": endDeg
+                };
+
+                // check winner
+                if (startDeg % 360 < 360 && startDeg % 360 > 270 && endDeg % 360 > 0 && endDeg % 360 < 90) {
+                    document.getElementById("winner").innerHTML = items[i];
+                }
             }
         }
 
-        function spinWheel() {
-            if (isSpinning) return;
-            isSpinning = true;
-            const spinAngle = Math.random() * 10 + 10;
-            const spinTime = 3000;
-            const startTime = Date.now();
+        let speed = 0;
+        let maxRotation = randomRange(360 * 3, 360 * 6);
+        let pause = false;
 
-            function animate() {
-                const currentTime = Date.now();
-                const elapsedTime = currentTime - startTime;
-                if (elapsedTime < spinTime) {
-                    angle += spinAngle * (1 - elapsedTime / spinTime);
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    ctx.save();
-                    ctx.translate(250, 250);
-                    ctx.rotate(angle * Math.PI / 180);
-                    ctx.translate(-250, -250);
-                    drawWheel();
-                    ctx.restore();
-                    requestAnimationFrame(animate);
-                } else {
-                    isSpinning = false;
+        function animate() {
+            if (pause) {
+                return;
+            }
+            speed = easeOutSine(getPercent(currentDeg, maxRotation, 0)) * 20;
+            if (speed < 0.01) {
+                speed = 0;
+                pause = true;
+            }
+            currentDeg += speed;
+            draw();
+            window.requestAnimationFrame(animate);
+        }
+
+        function spin() {
+            if (speed !== 0) {
+                return;
+            }
+
+            let winner = document.getElementById("winner").innerHTML;
+            if (winner !== "NONE") {
+                let index = items.indexOf(winner);
+                if (index !== -1) {
+                    items.splice(index, 1); // Remove the winner from the items
+                    document.getElementById("itemInput").value = items.join("\n"); // Update textarea
+                    createWheel(); // Update the wheel with remaining items
                 }
             }
 
-            animate();
+            maxRotation = (360 * 6) - itemDegs[items[0]].endDeg + 10; // Set max rotation based on the first item
+            currentDeg = 0; // Reset current degree
+            pause = false; // Allow animation to continue
+            window.requestAnimationFrame(animate); // Start animation
         }
 
-        drawWheel();
-        segmentInput.addEventListener('change', drawWheel);
-        spinButton.addEventListener('click', spinWheel);
+        document.getElementById("spinButton").addEventListener("click", spin);
+        document.getElementById("itemInput").addEventListener("input", function() {
+            items = this.value.split("\n").filter(item => item.trim() !== "");
+            createWheel(); // Recreate the wheel with new items
+        });
     </script>
 </body>
 </html>
