@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acak Angka</title>
+  <link rel="stylesheet" href="style-angka.css">
+</head>
+<body>
+  <header class="text-center">
+    <h1>Acak Angka</h1>
+  </header>
+  <main>
+    <form id="input-form">
+      <div class="form-group">
+        <label for="start">Batas Bawah:</label>
+        <input type="number" id="start" name="start" min="0">
+      </div>
+      <div class="form-group">
+        <label for="end">Batas Atas:</label>
+        <input type="number" id="end" name="end" min="0">
+      </div>
+      <div class="form-group">
+        <label for="amount">Jumlah Angka:</label>
+        <input type="number" id="amount" name="amount" min="1">
+      </div>
+      <button type="button" id="randomize-btn">Acak</button>
+      <button type="button" id="reset-btn">Reset</button>
+    </form>
+    <div id="results"></div>
+    <button type="button" onclick="window.location.href='../../index.html'">Kembali ke Index</button>
+  </main>
+  <script src="script-angka.js"></script>
+</body> 
+</html>
