@@ -3,6 +3,9 @@ const positionsContainer = document.getElementById('positions-container');
 const addPositionBtn = document.getElementById('add-position');
 const randomizeBtn = document.getElementById('randomize');
 const resultContainer = document.getElementById('result-container');
+const downloadBtn = document.getElementById('download-results');
+
+let positions = [];
 
 function addPosition() {
     const newPosition = document.createElement('div');
@@ -22,7 +25,7 @@ function addPosition() {
 
 function randomize() {
   const names = nameListInput.value.split('\n').filter(name => name.trim() !== '');
-  const positions = Array.from(positionsContainer.querySelectorAll('.position')).map(position => {
+  positions = Array.from(positionsContainer.querySelectorAll('.position')).map(position => {
     const nameInput = position.querySelector('input[type="text"]');
     const amountInput = position.querySelector('input[type="number"]');
     return {
@@ -63,8 +66,28 @@ function randomize() {
   });
 }
 
+function downloadResults() {
+  let resultText = '';
+  positions.forEach(position => {
+    resultText += `${position.name}\n`;
+    position.members.forEach(member => {
+      resultText += `- ${member}\n`;
+    });
+    resultText += '\n';
+  });
+
+  const blob = new Blob([resultText], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'hasil-acak-peran.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 addPositionBtn.addEventListener('click', addPosition);
 randomizeBtn.addEventListener('click', randomize);
+downloadBtn.addEventListener('click', downloadResults);
 
 // Add event listener to existing delete button
 document.querySelectorAll('.delete-position').forEach(button => {
