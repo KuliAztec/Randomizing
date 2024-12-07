@@ -1,9 +1,9 @@
-const startInput = document.getElementById('start');
-const endInput = document.getElementById('end');
-const amountInput = document.getElementById('amount');
-const resultsDiv = document.getElementById('results');
-const randomizeBtn = document.getElementById('randomize-btn');
-const resetBtn = document.getElementById('reset-btn');
+const elements = ['start', 'end', 'amount', 'results', 'randomize-btn', 'reset-btn', 'save-btn'].reduce((acc, id) => {
+  acc[id] = document.getElementById(id);
+  return acc;
+}, {});
+
+const { start, end, amount, results, 'randomize-btn': randomizeBtn, 'reset-btn': resetBtn, 'save-btn': saveBtn } = elements;
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -17,67 +17,60 @@ function shuffleArray(array) {
   return array;
 }
 
-function saveResults(numbers) {
-  fetch('save-results-db.php', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ results: numbers })
-  })
-  .then(response => response.text())
-  .then(data => {
-    console.log('Success:', data);
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
+function saveResults(results) {
+  const blob = new Blob([results], { type: 'text/plain' });
+  const anchor = document.createElement('a');
+  anchor.download = 'hasil-acak-angka.txt';
+  anchor.href = window.URL.createObjectURL(blob);
+  anchor.target = '_blank';
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+}
+
+function clearInputs() {
+  ['start', 'end', 'amount'].forEach(id => elements[id].value = '');
+  results.innerHTML = '';
+}
+
+function validateInputs(startValue, endValue, amountValue) {
+  if ([startValue, endValue, amountValue].some(isNaN)) {
+    alert('Please enter valid numbers for start, end, and amount.');
+    return false;
+  }
+  return true;
 }
 
 function generateRandomNumbers() {
-  const start = parseInt(startInput.value);
-  const end = parseInt(endInput.value);
-  const amount = parseInt(amountInput.value);
+  const startValue = parseInt(start.value);
+  const endValue = parseInt(end.value);
+  const amountValue = parseInt(amount.value);
 
-  if (start >= end || amount <= 0) {
-    alert('Batas bawah harus lebih kecil dari batas atas dan jumlah angka harus minimal 1!');
-    return;
-  }
+  if (!validateInputs(startValue, endValue, amountValue)) return;
 
-  const numbers = [];
-  for (let i = start; i <= end; i++) {
-    numbers.push(i);
-  }
-
-  const shuffledNumbers = shuffleArray(numbers).slice(0, amount);
-  shuffledNumbers.sort((a, b) => a - b); // Sort numbers in ascending order
-  resultsDiv.innerHTML = shuffledNumbers.join(', ');
-  saveResults(shuffledNumbers); // Save the results
+  const numbers = Array.from({ length: endValue - startValue + 1 }, (_, i) => i + startValue);
+  const shuffledNumbers = shuffleArray(numbers).slice(0, amountValue).sort((a, b) => a - b);
+  results.innerHTML = shuffledNumbers.join(', ');
 }
 
-randomizeBtn.addEventListener('click', generateRandomNumbers);
+function handleButtonClick(event) {
+  if (event.target === randomizeBtn) {
+    generateRandomNumbers();
+  } else if (event.target === resetBtn) {
+    clearInputs();
+  }
+}
 
-resetBtn.addEventListener('click', () => {
-  startInput.value = '';
-  endInput.value = '';
-  amountInput.value = '';
-  resultsDiv.innerHTML = '';
-});
-
-document.getElementById('save-btn').addEventListener('click', function() {
-  const results = document.getElementById('results').innerText;
-  if (results) {
-    const blob = new Blob([results], { type: 'text/plain' });
-    const anchor = document.createElement('a');
-    anchor.download = 'hasil-acak-angka.txt';
-    anchor.href = window.URL.createObjectURL(blob);
-    anchor.target = '_blank';
-    anchor.style.display = 'none'; // Make sure it's not visible
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-    alert('Hasil disimpan!');
+function handleSaveButtonClick() {
+  const resultsText = results.textContent;
+  if (resultsText) {
+    const resultsFormatted = `Ambang bawah: ${start.value}\nAmbang atas: ${end.value}\nBanyak angka : ${amount.value}\nAngka terpilih: ${resultsText}`;
+    saveResults(resultsFormatted);
   } else {
     alert('Tidak ada hasil untuk disimpan.');
   }
-});
+}
+
+[randomizeBtn, resetBtn].forEach(btn => btn.addEventListener('click', handleButtonClick));
+saveBtn.addEventListener('click', handleSaveButtonClick);

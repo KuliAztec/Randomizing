@@ -2,7 +2,7 @@ body {
     font-family: sans-serif;
     margin: 0;
     padding: 20px;
-    background-color: #f4f4f4;
+    background-color: #e9ecef;
 }
 
 header {
@@ -10,11 +10,13 @@ header {
     background-color: #007bff;
     color: #fff;
     padding: 10px 0;
+    border-radius: 5px;
 }
 
 h1 {
     font-size: 2em;
     margin-bottom: 10px;
+    font-family: 'Arial Black', sans-serif;
 }
 
 .text-center {
@@ -25,6 +27,11 @@ h1 {
     font-size: 0.8em;
     color: #fff;
     text-decoration: none;
+    transition: color 0.3s;
+}
+
+.text-mini-link:hover {
+    color: #ffc107;
 }
 
 main {
@@ -41,6 +48,11 @@ form {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 400px;
+    transition: box-shadow 0.3s;
+}
+
+form:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }
 
 .form-group {
@@ -58,6 +70,11 @@ input[type="number"] {
     border-radius: 5px;
     width: 100%;
     box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+input[type="number"]:focus {
+    border-color: #007bff;
 }
 
 button {
@@ -68,15 +85,37 @@ button {
     margin-top: 10px;
     width: 100%;
     box-sizing: border-box;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+button:hover {
+    transform: translateY(-2px);
 }
 
 #randomize-btn {
-    background-color: #007bff;
+    background-color: #28a745;
     color: #fff;
 }
 
+#randomize-btn:hover {
+    background-color: #218838;
+}
+
 #reset-btn {
-    background-color: #ddd;
+    background-color: #ffc107;
+}
+
+#reset-btn:hover {
+    background-color: #e0a800;
+}
+
+#save-btn {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+#save-btn:hover {
+    background-color: #138496;
 }
 
 #results {
@@ -85,4 +124,8 @@ button {
     text-align: center;
     width: 100%;
     max-width: 400px;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }

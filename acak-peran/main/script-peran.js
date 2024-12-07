@@ -1,3 +1,4 @@
+// Get DOM elements
 const nameListInput = document.getElementById('name-list');
 const positionsContainer = document.getElementById('positions-container');
 const addPositionBtn = document.getElementById('add-position');
@@ -7,6 +8,7 @@ const downloadBtn = document.getElementById('download-results');
 
 let positions = [];
 
+// Function to add a new position input
 function addPosition() {
     const newPosition = document.createElement('div');
     newPosition.classList.add('position');
@@ -16,65 +18,42 @@ function addPosition() {
       <button class="delete-position">Hapus</button>
     `;
     positionsContainer.appendChild(newPosition);
-
-    // Add event listener to the delete button
-    newPosition.querySelector('.delete-position').addEventListener('click', () => {
-        newPosition.remove();
-    });
+    newPosition.querySelector('.delete-position').addEventListener('click', () => newPosition.remove());
 }
 
+// Function to randomize names into positions
 function randomize() {
   const names = nameListInput.value.split('\n').filter(name => name.trim() !== '');
-  positions = Array.from(positionsContainer.querySelectorAll('.position')).map(position => {
-    const nameInput = position.querySelector('input[type="text"]');
-    const amountInput = position.querySelector('input[type="number"]');
-    return {
-      name: nameInput.value,
-      amount: parseInt(amountInput.value)
-    };
-  });
+  positions = Array.from(positionsContainer.querySelectorAll('.position')).map(position => ({
+    name: position.querySelector('input[type="text"]').value,
+    amount: parseInt(position.querySelector('input[type="number"]').value)
+  }));
 
-  // Fungsi untuk mengacak array
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-  }
+  // Shuffle the names array
+  names.sort(() => Math.random() - 0.5);
 
-  // Mengacak daftar nama
-  shuffleArray(names);
-
-  // Mendistribusikan nama ke masing-masing posisi
+  // Distribute names to each position
   let nameIndex = 0;
   positions.forEach(position => {
     position.members = names.slice(nameIndex, nameIndex + position.amount);
     nameIndex += position.amount;
   });
 
-  // Menampilkan hasil dalam HTML
-  resultContainer.innerHTML = '';
-  positions.forEach(position => {
-    const resultDiv = document.createElement('div');
-    resultDiv.innerHTML = `
+  // Display the results in HTML
+  resultContainer.innerHTML = positions.map(position => `
+    <div>
       <h3>${position.name}</h3>
-      <ul>
-        ${position.members.map(member => `<li>${member}</li>`).join('')}
-      </ul>
-    `;
-    resultContainer.appendChild(resultDiv);
-  });
+      <ul>${position.members.map(member => `<li>${member}</li>`).join('')}</ul>
+    </div>
+  `).join('');
 }
 
+// Function to download the results as a text file
 function downloadResults() {
-  let resultText = '';
-  positions.forEach(position => {
-    resultText += `${position.name}\n`;
-    position.members.forEach(member => {
-      resultText += `- ${member}\n`;
-    });
-    resultText += '\n';
-  });
+  const resultText = positions.map(position => `
+    ${position.name}
+    ${position.members.map(member => `- ${member}`).join('\n')}
+  `).join('\n\n');
 
   const blob = new Blob([resultText], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
@@ -85,13 +64,12 @@ function downloadResults() {
   URL.revokeObjectURL(url);
 }
 
-addPositionBtn.addEventListener('click', addPosition);
-randomizeBtn.addEventListener('click', randomize);
-downloadBtn.addEventListener('click', downloadResults);
+// Add event listeners to buttons
+[addPositionBtn, randomizeBtn, downloadBtn].forEach((btn, i) => {
+  btn.addEventListener('click', [addPosition, randomize, downloadResults][i]);
+});
 
-// Add event listener to existing delete button
+// Add event listener to existing delete buttons
 document.querySelectorAll('.delete-position').forEach(button => {
-    button.addEventListener('click', (event) => {
-        event.target.parentElement.remove();
-    });
+    button.addEventListener('click', (event) => event.target.parentElement.remove());
 });

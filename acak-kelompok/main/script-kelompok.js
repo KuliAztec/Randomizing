@@ -1,79 +1,57 @@
-const numGroupsInput = document.getElementById('num-groups');
-const nameListInput = document.getElementById('name-list');
-const randomizeBtn = document.getElementById('randomize-btn');
-const resetBtn = document.getElementById('reset-btn');
-const resultContainer = document.getElementById('result-container');
-
-const downloadBtn = document.getElementById('download-btn');
-
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
+function divideIntoGroups(names, numberOfGroups) {
+  // Shuffle the names array
+  for (let i = names.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-function groupByN(list, numGroups) {
-  const shuffledList = shuffleArray(list.split('\n'));
-  const groups = [];
-  for (let i = 0; i < numGroups; i++) {
-    groups.push([]);
+    [names[i], names[j]] = [names[j], names[i]];
   }
 
-  for (let i = 0; i < shuffledList.length; i++) {
-    groups[i % numGroups].push(shuffledList[i]);
-  }
+  // Create the groups
+  const groups = Array.from({ length: numberOfGroups }, () => []);
+  names.forEach((name, index) => {
+    groups[index % numberOfGroups].push(name);
+  });
 
   return groups;
 }
 
 function downloadGroups(groups) {
-  let content = '';
+  let content = "Group Results:\n\n";
   groups.forEach((group, index) => {
-    content += `Kelompok ${index + 1}: ${group.join(', ')}\n`;
+    content += `Group ${index + 1}:\n`;
+    group.forEach(name => {
+      content += `- ${name}\n`;
+    });
+    content += "\n";
   });
 
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'hasil_kelompok.txt';
-  a.click();
-  URL.revokeObjectURL(url);
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "group-results.txt";
+  link.click();
+}
+
+function displayGroups(groups) {
+  const resultContainer = document.getElementById('result-container');
+  resultContainer.innerHTML = ''; // Clear previous results
+  groups.forEach((group, index) => {
+    const groupDiv = document.createElement('div');
+    groupDiv.classList.add('group');
+    groupDiv.innerHTML = `<h3>Kelompok ${index + 1}</h3><ul>${group.map(name => `<li>${name}</li>`).join('')}</ul>`;
+    resultContainer.appendChild(groupDiv);
+  });
 }
 
 let currentGroups = [];
 
-randomizeBtn.addEventListener('click', () => {
-  const numGroups = parseInt(numGroupsInput.value);
-  const names = nameListInput.value;
-
-  if (numGroups <= 0 || names.trim() === '') {
-    alert('Jumlah kelompok harus lebih dari 0 dan daftar nama tidak boleh kosong.');
-    return;
-  }
-
-  currentGroups = groupByN(names, numGroups);
-
-  resultContainer.innerHTML = '';
-  currentGroups.forEach((group, index) => {
-    const groupDiv = document.createElement('div');
-    groupDiv.textContent = `Kelompok ${index + 1}: ${group.join(', ')}`;
-    resultContainer.appendChild(groupDiv);
-  });
-
-  downloadBtn.style.display = 'block';
+document.getElementById('randomize-btn').addEventListener('click', () => {
+  const names = document.getElementById('name-list').value.split('\n');
+  const numberOfGroups = parseInt(document.getElementById('num-groups').value, 10);
+  currentGroups = divideIntoGroups(names, numberOfGroups);
+  console.log(currentGroups);
+  displayGroups(currentGroups);
 });
 
-downloadBtn.addEventListener('click', () => {
+document.getElementById('download-btn').addEventListener('click', () => {
   downloadGroups(currentGroups);
-});
-
-resetBtn.addEventListener('click', () => {
-  numGroupsInput.value = 1;
-  nameListInput.value = '';
-  resultContainer.innerHTML = '';
-  downloadBtn.style.display = 'none';
-  currentGroups = [];
 });
