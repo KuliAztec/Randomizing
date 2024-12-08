@@ -1,4 +1,7 @@
 <?php
+
+include '../../koneksyon.php';
+
 session_start();
 if (!isset($_SESSION['id_user'])) {
     header("Location: ../../autentikasi/login.php");
@@ -123,6 +126,29 @@ if (!isset($_SESSION['id_user'])) {
   <button type="button" id="download-btn">Download Hasil</button>
   <div id="result-container" class="result-container"></div>
   <a href="../../app.php">Kembali</a>
+  <form id="save-form" method="POST" action="save-kelompok.php" target="hidden-iframe">
+    <input type="hidden" name="result" id="result-input">
+  </form>
+  <iframe name="hidden-iframe" style="display:none;"></iframe>
   <script src="script-kelompok.js"></script>
+  <script>
+    document.getElementById('randomize-btn').addEventListener('click', function() {
+      const names = document.getElementById('name-list').value.split('\n');
+      const numberOfGroups = parseInt(document.getElementById('num-groups').value, 10);
+      const result = divideIntoGroups(names, numberOfGroups);
+      document.getElementById('result-input').value = JSON.stringify(result); // Save result to hidden input
+      displayGroups(result);
+    });
+
+    document.getElementById('download-btn').addEventListener('click', function() {
+      if (!document.getElementById('result-input').value) {
+        alert('Tidak ada hasil untuk didownload.');
+        return;
+      }
+
+      // Trigger form submission to save result to database
+      document.getElementById('save-form').submit();
+    });
+  </script>
 </body>
 </html>

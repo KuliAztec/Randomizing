@@ -10,15 +10,15 @@ let positions = [];
 
 // Function to add a new position input
 function addPosition() {
-    const newPosition = document.createElement('div');
-    newPosition.classList.add('position');
-    newPosition.innerHTML = `
-      <input type="text" placeholder="Nama Jabatan">
-      <input type="number" min="1" placeholder="Jumlah Anggota">
-      <button class="delete-position">Hapus</button>
-    `;
-    positionsContainer.appendChild(newPosition);
-    newPosition.querySelector('.delete-position').addEventListener('click', () => newPosition.remove());
+  const newPosition = document.createElement('div');
+  newPosition.classList.add('position');
+  newPosition.innerHTML = `
+    <input type="text" placeholder="Nama Jabatan">
+    <input type="number" min="1" placeholder="Jumlah Anggota">
+    <button class="delete-position">Hapus</button>
+  `;
+  positionsContainer.appendChild(newPosition);
+  newPosition.querySelector('.delete-position').addEventListener('click', () => newPosition.remove());
 }
 
 // Function to randomize names into positions
@@ -50,10 +50,10 @@ function randomize() {
 
 // Function to download the results as a text file
 function downloadResults() {
-  const resultText = positions.map(position => `
-    ${position.name}
-    ${position.members.map(member => `- ${member}`).join('\n')}
-  `).join('\n\n');
+  const resultText = positions.map(position => {
+    const membersList = position.members.map(member => `- ${member}`).join('\n');
+    return `[${position.name}]\n${membersList}`;
+  }).join('\n\n');
 
   const blob = new Blob([resultText], { type: 'text/plain' });
   const url = URL.createObjectURL(blob);
@@ -64,12 +64,39 @@ function downloadResults() {
   URL.revokeObjectURL(url);
 }
 
+// Function to save results to the database
+function saveResults() {
+  const resultText = positions.map(position => {
+    const membersList = position.members.map(member => `- ${member}`).join('\n');
+    return `[${position.name}]\n${membersList}`;
+  }).join('\n\n');
+
+  fetch('save-peran.php', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ result: resultText })
+  })
+  .then(response => response.text())
+  .then(text => {
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'hasil-acak-peran.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  })
+  .catch(error => console.error('Error saving results:', error));
+}
+
 // Add event listeners to buttons
-[addPositionBtn, randomizeBtn, downloadBtn].forEach((btn, i) => {
-  btn.addEventListener('click', [addPosition, randomize, downloadResults][i]);
-});
+addPositionBtn.addEventListener('click', addPosition);
+randomizeBtn.addEventListener('click', randomize);
+downloadBtn.addEventListener('click', saveResults);
 
 // Add event listener to existing delete buttons
 document.querySelectorAll('.delete-position').forEach(button => {
-    button.addEventListener('click', (event) => event.target.parentElement.remove());
+  button.addEventListener('click', (event) => event.target.parentElement.remove());
 });

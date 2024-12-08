@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 07, 2024 at 06:57 PM
+-- Generation Time: Dec 08, 2024 at 06:07 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -44,6 +44,15 @@ CREATE TABLE `simpan` (
   `isi` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Dumping data for table `simpan`
+--
+
+INSERT INTO `simpan` (`id_simpan`, `id_user`, `isi`) VALUES
+(36, 1, 'Ambang bawah: 1\nAmbang atas: 50\nBanyak angka: 15\nAngka terpilih: 2, 7, 8, 9, 16, 17, 20, 34, 35, 36, 38, 41, 47, 48, 50'),
+(37, 1, '[[\"11\",\"8\",\"3\"],[\"9\",\"7\",\"5\"],[\"10\",\"4\",\"1\"],[\"2\",\"6\"]]'),
+(38, 1, '[Kiper]\n- 8\n\n[Bek]\n- 2\n- 6\n- 3\n- 1\n\n[Gelandang]\n- 11\n- 9\n- 5\n- 10\n- 4\n\n[Penyerang]\n- 7');
+
 -- --------------------------------------------------------
 
 --
@@ -77,7 +86,8 @@ ALTER TABLE `session`
 -- Indexes for table `simpan`
 --
 ALTER TABLE `simpan`
-  ADD PRIMARY KEY (`id_simpan`);
+  ADD PRIMARY KEY (`id_simpan`),
+  ADD KEY `fk_user_id` (`id_user`);
 
 --
 -- Indexes for table `user`
@@ -99,13 +109,23 @@ ALTER TABLE `session`
 -- AUTO_INCREMENT for table `simpan`
 --
 ALTER TABLE `simpan`
-  MODIFY `id_simpan` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id_simpan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
   MODIFY `id_user` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `simpan`
+--
+ALTER TABLE `simpan`
+  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`id_user`) REFERENCES `user` (`id_user`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

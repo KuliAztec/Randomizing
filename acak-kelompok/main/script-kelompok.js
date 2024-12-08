@@ -1,4 +1,4 @@
-function divideIntoGroups(names, numberOfGroups) {
+window.divideIntoGroups = function(names, numberOfGroups) {
   // Shuffle the names array
   for (let i = names.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -12,10 +12,10 @@ function divideIntoGroups(names, numberOfGroups) {
   });
 
   return groups;
-}
+};
 
 function downloadGroups(groups) {
-  let content = "Group Results:\n\n";
+  let content = "Kelompok yang terbuat:\n\n";
   groups.forEach((group, index) => {
     content += `Group ${index + 1}:\n`;
     group.forEach(name => {
@@ -43,15 +43,3 @@ function displayGroups(groups) {
 }
 
 let currentGroups = [];
-
-document.getElementById('randomize-btn').addEventListener('click', () => {
-  const names = document.getElementById('name-list').value.split('\n');
-  const numberOfGroups = parseInt(document.getElementById('num-groups').value, 10);
-  currentGroups = divideIntoGroups(names, numberOfGroups);
-  console.log(currentGroups);
-  displayGroups(currentGroups);
-});
-
-document.getElementById('download-btn').addEventListener('click', () => {
-  downloadGroups(currentGroups);
-});
